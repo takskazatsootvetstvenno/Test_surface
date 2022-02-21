@@ -21,7 +21,7 @@ cd "test_dir",
  
 gitclone https://github.com/takskazatsootvetstvenno/Test_surface.git,
  
-cd Viewer
+cd Test_surface
  
 ./WidnowsDebug.cmd or ./WindowsRelease.cmd
  
