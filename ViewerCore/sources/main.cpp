@@ -1,6 +1,6 @@
-#include"LogManager.h"
-#include<memory>
-#include"Application.h"
+#include "LogManager.h"
+#include <memory>
+#include "Application.h"
 
 int main()
 {
@@ -11,7 +11,7 @@ int main()
 #endif
 
 #ifdef _WIN32 
-	TestEngine::LogManager::Info() << "Running on Windos OS\n" << TestEngine::LogManager::Show();
+	TestEngine::LogManager::Info() << "Running on Windows OS\n" << TestEngine::LogManager::Show();
 #elif __unix__ 
 	TestEngine::LogManager::Info() << "Running on Unix OS\n" << TestEngine::LogManager::Show();
 #elif __linux__
@@ -21,6 +21,6 @@ int main()
 #endif 
 
 	auto App = std::make_unique<TestEngine::Application>();
-	int returnCode = App->start(1280, 720, "Viewer");
+	int returnCode = App->start(1280, 720, "Surface");
 	return returnCode;
 }

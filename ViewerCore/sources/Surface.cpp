@@ -2,15 +2,14 @@
 
 #include "Surface.h"
 #include "BufferLayout.h"
+#include "ResourceManager.h"
 #include <vector>
 #include <memory>
-#include "ResourceManager.h"
-/*#include <thread>
-#include <chrono>*/
 #include <cmath>
+
 namespace TestEngine {
-	Surface::Surface(const int N, Section sec)
-		:m_N(N), m_section(sec)
+	Surface::Surface(const int N)
+		:m_N(N)
 	{
 		glCreateBuffers(1, &m_SSBO_init);
 		glCreateBuffers(1, &m_SSBO_norm);
@@ -49,11 +48,11 @@ namespace TestEngine {
 		glDeleteBuffers(1, &m_SSBO);
 	}
 
-	void Surface::updateSurfaceVB(uint32_t N, const float epsilon, const float constant) noexcept
+	void Surface::updateSurfaceVB(const uint32_t N, const float constant) noexcept
 	{
 		int32_t type = 0;	//TO DO, make section on compute shader
 		auto& UBO = ResourceManager::Instance().getUBO(ResourceManager::GLOBAL_UBO::COMPUTE_INFO);
-		SurfaceSSBOData new_data{ type, N, constant, epsilon };
+		SurfaceSSBOData new_data{ type, N, constant, 0.f };
 		UBO.updateData(&new_data);
 		if (N != m_N)
 		{
@@ -80,7 +79,7 @@ namespace TestEngine {
 		return 12 * 3 * m_N * m_N * m_N;
 	}
 
-	void Surface::updateSSBO()
+	void Surface::updateSSBO() const noexcept
 	{
 		ResourceManager::Instance().getShaderProgram("Compute_init").bind();
 		glDispatchCompute(

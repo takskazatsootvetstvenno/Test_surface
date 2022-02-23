@@ -15,11 +15,11 @@ namespace TestEngine
 		ShaderProgram(const ShaderProgram&) = delete;
 		ShaderProgram& operator=(const ShaderProgram&) = delete;
 
-		void bind() const;
+		void bind() const noexcept;
 		static void unbind();
 		bool isCompiled() const;
-		unsigned int getProgramID() const;
-		unsigned int getUniformBlockIndex(const char* name) const;
+		unsigned int getProgramID() const noexcept;
+		unsigned int getUniformBlockIndex(const char* name) const noexcept;
 	private:
 		bool m_isCompiled = false;
 		unsigned int m_id = 0;

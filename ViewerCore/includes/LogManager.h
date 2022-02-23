@@ -31,7 +31,7 @@ namespace TestEngine {
         LogManager& operator=(const LogManager&) = delete;
         LogManager& operator=(LogManager&&) = delete;
 
-        std::string& get_console_string() {
+        std::string& get_console_string() noexcept{
             return m_console_string;
         }
         ConsoleType ManagerConsoleOutput = ConsoleType::Console;

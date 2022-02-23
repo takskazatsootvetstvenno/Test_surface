@@ -79,7 +79,7 @@ const uvec3 vert_table[8] = {
    {0, 0, 1}
 };
 
-uvec3 get_pos(const int v) //return pos
+uvec3 get_pos(const int v)
 {
     return gl_GlobalInvocationID.xyz + vert_table[v];
 }
@@ -94,10 +94,9 @@ vec3 get_normal(const vec3 M)
     const float x = -1.f * (2.f*sin(M.x)*cos(M.x) - cos(M.y)*sin(M.x))/((sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z)*(sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z));
     const float y =  1.f * (sin(M.y)*cos(M.x)) / ((sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z)*(sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z));
     const float z =  -1.f * (2.f*M.z) / ((sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z)*(sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z));
-    //const float x = 2*M.x;
-    //const float y = 2*M.y;
-    //const float z = 2*M.z;
-
+    //const float x = M.x; //for sphere
+    //const float y = M.y;
+    //const float z = M.z;
     return normalize(vec3(x,y,z));
 }
 void processTriangle(const float iso, const uint ident, const int v0, const int v1, const int v2, const int v3)

@@ -22,7 +22,7 @@ namespace TestEngine {
 			char info_log[1024];
 			glGetShaderInfoLog(shader_id, 1024, nullptr, info_log);
 
-			LogManager::Error() << "Shader compilation error: " << info_log << "\n" << LogManager::Show();;
+			LogManager::Error() << "Shader compilation error: " << info_log << "\n" << LogManager::Show();
 			return false;
 		}
 		return true;
@@ -54,7 +54,7 @@ namespace TestEngine {
 		if (success == GL_FALSE) {
 			GLchar info_log[1024];
 			glGetProgramInfoLog(m_id, 1024, nullptr, info_log);
-			LogManager::Error() << "SHADER PROGRAM: Link-time error: " << info_log << "\n" << LogManager::Show();;
+			LogManager::Error() << "SHADER PROGRAM: Link-time error: " << info_log << "\n" << LogManager::Show();
 			glDeleteProgram(m_id);
 			m_id = 0;
 			glDeleteShader(vertex_shader_id);
@@ -73,7 +73,7 @@ namespace TestEngine {
 	{
 		GLuint compute_shader_id = 0;
 		if (!create_shader(compute_shader_path, GL_COMPUTE_SHADER, compute_shader_id)) {
-			LogManager::Error() << "COMPUTE SHADER: compile-time error!\n" << LogManager::Show();;
+			LogManager::Error() << "COMPUTE SHADER: compile-time error!\n" << LogManager::Show();
 			glDeleteShader(compute_shader_id);
 			return;
 		}
@@ -87,7 +87,7 @@ namespace TestEngine {
 		if (success == GL_FALSE) {
 			GLchar info_log[1024];
 			glGetProgramInfoLog(m_id, 1024, nullptr, info_log);
-			LogManager::Error() << "SHADER PROGRAM: Link-time error: " << info_log << "\n" << LogManager::Show();;
+			LogManager::Error() << "SHADER PROGRAM: Link-time error: " << info_log << "\n" << LogManager::Show();
 			glDeleteProgram(m_id);
 			glDeleteShader(compute_shader_id);
 			m_id = 0;
@@ -119,7 +119,7 @@ namespace TestEngine {
 	{
 		glDeleteProgram(m_id);
 	}
-	void ShaderProgram::bind() const
+	void ShaderProgram::bind() const noexcept
 	{
 		glUseProgram(m_id);
 	}
@@ -131,11 +131,11 @@ namespace TestEngine {
 	{
 		return m_isCompiled;
 	}
-	unsigned int ShaderProgram::getProgramID() const
+	unsigned int ShaderProgram::getProgramID() const noexcept
 	{
 		return m_id;
 	}
-	unsigned int ShaderProgram::getUniformBlockIndex(const char* name) const
+	unsigned int ShaderProgram::getUniformBlockIndex(const char* name) const noexcept
 	{
 		return glGetUniformBlockIndex(m_id, name);
 	}

@@ -27,15 +27,15 @@ namespace TestEngine {
 		glBindBufferRange(GL_UNIFORM_BUFFER, bindUBO.bindingPoint,
 			m_id, 0, buffer_layout.get_stride());
 	}
-	void UniformBuffer::updateData(const void* data) const
+	void UniformBuffer::updateData(const void* data) const noexcept
 	{
 		glNamedBufferSubData(m_id, 0, m_buffer_layout.get_stride(), data);
 	}
-	void UniformBuffer::updateSubData(const void* data, const unsigned int offset, const unsigned int size) const
+	void UniformBuffer::updateSubData(const void* data, const unsigned int offset, const unsigned int size) const noexcept
 	{
 		glNamedBufferSubData(m_id, offset, size, data);
 	}
-	void UniformBuffer::updateElementData(const void* data, unsigned int elementID) const
+	void UniformBuffer::updateElementData(const void* data, unsigned int elementID) const noexcept
 	{
 		auto& element = m_buffer_layout.get_elements()[elementID];
 		glNamedBufferSubData(m_id, element.offset, element.size, data);

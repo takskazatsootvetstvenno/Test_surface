@@ -32,8 +32,8 @@ namespace TestEngine {
 		BufferLayout& operator=(const BufferLayout& otherBufferLayout);
 		BufferLayout& operator=(BufferLayout&& otherBufferLayout) noexcept;
 
-		const std::vector<BufferElement>& get_elements() const { return m_elements; }
-		size_t get_stride() const { return m_stride; }
+		const std::vector<BufferElement>& get_elements() const noexcept { return m_elements; }
+		size_t get_stride() const noexcept { return m_stride; }
 
 	private:
 		std::vector<BufferElement> m_elements;

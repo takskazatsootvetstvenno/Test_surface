@@ -6,21 +6,21 @@ namespace TestEngine {
 	{
 	}
 	
-	unsigned int Mesh::get_renderType() const
+	unsigned int Mesh::get_renderType() const noexcept
 	{
 		return m_renderType;
 	}
 
-	const std::string& Mesh::get_shaderName() const
+	const std::string& Mesh::get_shaderName() const noexcept
 	{
 		return m_shaderName;
 	}
 
-	const VertexArray& Mesh::get_VAO() const
+	const VertexArray& Mesh::get_VAO() const noexcept
 	{
 		return m_VAO;
 	}
-	const IndexBuffer& Mesh::get_EBO() const
+	const IndexBuffer& Mesh::get_EBO() const noexcept
 	{
 		return m_EBO;
 	}

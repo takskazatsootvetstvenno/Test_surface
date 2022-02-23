@@ -197,12 +197,12 @@ namespace TestEngine
 			}(m_CameraData.model), 2);
 
 		glClearColor(0.f, 0.f, 0.f, 0.f);
-		m_pSurface = std::make_unique<Surface>(
-			100,
-			Surface::Section::Nothing);
-		m_pSurface->updateSurfaceVB(100, 0.1f, 1.f);
+		m_pSurface = std::make_unique<Surface>(100);
+		m_pSurface->updateSurfaceVB(70, 0.9f);
+		const auto& UBO = ResourceManager::Instance().getUBO(ResourceManager::GLOBAL_UBO::LIGHT_INFO);
+		UBO.updateData(&m_surfData.new_light_pos);
+		glEnable(GL_DEPTH_TEST);
 	}
-	const char* items[] = { "X-Section", "Y-Section", "Z-Section", "Nothing" };
 	void Window::onUpdate() noexcept
 	{
 		glfwPollEvents();
@@ -215,25 +215,20 @@ namespace TestEngine
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			m_surfData.old_useWireFrames = m_surfData.new_useWireFrames;
 		}
+		if (m_surfData.new_light_pos != m_surfData.old_light_pos || m_surfData.new_surface_color != m_surfData.old_surface_color)
+		{
+			const auto& UBO = ResourceManager::Instance().getUBO(ResourceManager::GLOBAL_UBO::LIGHT_INFO);
+			Surface::SurfaceUBOfragmentData temp_data {
+				glm::fvec4(m_surfData.new_light_pos, 1.f),
+				glm::fvec4(m_surfData.new_surface_color, 1.f)
+			};
+			UBO.updateData(&temp_data);
+			m_surfData.old_light_pos = m_surfData.new_light_pos;
+			m_surfData.old_surface_color = m_surfData.new_surface_color;
+		}
 		if (m_surfData.isChanged())
 		{
-			auto sectionType = Surface::Section::Nothing;
-			switch (m_surfData.new_section)
-			{
-			case 0:
-				sectionType = Surface::Section::X_sec;
-				break;
-			case 1:
-				sectionType = Surface::Section::Y_sec;
-				break;
-			case 2:
-				sectionType = Surface::Section::Z_sec;
-				break;
-			case 3:
-				sectionType = Surface::Section::Nothing;
-				break;
-			}
-			m_pSurface->updateSurfaceVB(m_surfData.new_grid_size, m_surfData.new_epsilon, m_surfData.new_const);
+			m_pSurface->updateSurfaceVB(m_surfData.new_grid_size, m_surfData.new_const);
 			m_surfData.update();
 		}
 		ImGuiIO& io = ImGui::GetIO();
@@ -241,13 +236,13 @@ namespace TestEngine
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		ImGui::Begin("Surface options:");
-		ImGui::SliderFloat("displacement", &m_CameraData.displacement, -5.f, 5.f);
+		ImGui::SliderFloat("Camera height", &m_CameraData.displacement, -5.f, 5.f);
 		ImGui::SliderFloat("Const", &m_surfData.new_const, 0.4f, 1.9f, "%0.5f");
 		ImGui::SliderInt("Grid size", &m_surfData.new_grid_size, 5, 100, "%0.3d");
-		ImGui::SliderFloat("Epsilon", &m_surfData.new_epsilon, 0.0001f, 0.5f, "%0.5f", ImGuiSliderFlags_Logarithmic);
+		ImGui::SliderFloat3("Light pos", (float*)&m_surfData.new_light_pos, -10.f, 10.f, "%0.3f");
+		ImGui::SliderFloat3("Surface color", (float*)&m_surfData.new_surface_color, 0.f, 1.f, "%0.3f");
 		ImGui::Checkbox("Use wireframe", &m_surfData.new_useWireFrames);
-		//ImGui::ListBox("ListBox", &m_surfData.new_section, items, sizeof(items) / sizeof(items[0]), 2); //TO DO, make section on compute shader
-		auto& UBO = ResourceManager::Instance().getUBO(ResourceManager::GLOBAL_UBO::GENERAL_MATRICES);//proj
+		const auto& UBO = ResourceManager::Instance().getUBO(ResourceManager::GLOBAL_UBO::GENERAL_MATRICES);
 		UBO.updateElementData([&]() {
 			m_CameraData.projection = glm::perspective(45.0,
 				static_cast<double>((m_data.m_width * 1.f) / m_data.m_height),
@@ -261,7 +256,6 @@ namespace TestEngine
 				return glm::value_ptr(m_CameraData.projection);
 				}(getCameraRotation(), getCameraDistance(), m_CameraData.displacement), 1);
 
-		glEnable(GL_DEPTH_TEST);
 		for (const auto& mesh : ResourceManager::Instance().getMeshes())
 		{
 			mesh.get_VAO().bind();
@@ -270,10 +264,7 @@ namespace TestEngine
 				glDrawArrays(mesh.get_renderType(), 0, m_pSurface->count());
 			else
 				glDrawArrays(mesh.get_renderType(), 0, static_cast<GLsizei>(mesh.get_VAO().get_indices_count()));
-
-			
 		}
-		glDisable(GL_DEPTH_TEST);
 		ImGui::NewLine();
 		ImGui::End();
 		ImGui::Render();

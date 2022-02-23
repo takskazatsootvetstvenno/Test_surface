@@ -21,7 +21,7 @@ namespace TestEngine {
 	{
 		m_vMeshes.push_back(std::move(new_mesh));
 	}
-	const ShaderProgram& ResourceManager::getShaderProgram(const std::string& resourceName)
+	const ShaderProgram& ResourceManager::getShaderProgram(const std::string& resourceName) const noexcept
 	{
 		return m_mShaders.find(resourceName)->second;
 	}
@@ -75,18 +75,25 @@ namespace TestEngine {
 			Mesh::LINES
 		);
 
-		BufferLayout buffer_layout_1mat4 //UBO
+		BufferLayout buffer_layout_1mat4 //Matrix UBO
 		{
 			ShaderDataType::Mat4,
 			ShaderDataType::Mat4,
 			ShaderDataType::Mat4
 		};
-		BufferLayout buffer_layout_1int_2float //UBO
+
+		BufferLayout buffer_layout_1int_2float //Surface UBO
 		{
 			ShaderDataType::Int,
 			ShaderDataType::Int,
 			ShaderDataType::Float,
 			ShaderDataType::Float
+		};
+
+		BufferLayout buffer_layout_2float4 //Light UBO
+		{
+			ShaderDataType::Float4,
+			ShaderDataType::Float4
 		};
 
 		BufferLayout BL
@@ -114,7 +121,14 @@ namespace TestEngine {
 		uboBindingCompute.programID = getShaderProgram("Compute").getProgramID();
 		uboBindingCompute.uniformBlockIndex = getShaderProgram("Compute").getUniformBlockIndex("SurfaceInfo");
 		uboBindingCompute.bindingPoint = 1;
+		
+		BindingUBO uboBindingLight;
+		uboBindingLight.programID = getShaderProgram("Red").getProgramID();
+		uboBindingLight.uniformBlockIndex = getShaderProgram("Red").getUniformBlockIndex("LightInfo");
+		uboBindingLight.bindingPoint = 2;
+		
 		m_vUBO.emplace_back(nullptr, buffer_layout_1mat4, uboBinding);
 		m_vUBO.emplace_back(nullptr, buffer_layout_1int_2float, uboBindingCompute);
+		m_vUBO.emplace_back(nullptr, buffer_layout_2float4, uboBindingLight);
 	}
 }

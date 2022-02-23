@@ -18,10 +18,10 @@ namespace TestEngine {
 		Mesh(const std::string& shader_name, VertexBuffer&& VBO, IndexBuffer&& EBO, VertexArray&& VAO, RenderType RT = RenderType::TRIANGLE);
 		Mesh(Mesh&&) = default;
 		~Mesh() {};
-		unsigned int get_renderType() const;
-		const std::string& get_shaderName() const;
-		const VertexArray& get_VAO() const;
-		const IndexBuffer& get_EBO() const;
+		unsigned int get_renderType() const noexcept;
+		const std::string& get_shaderName() const noexcept;
+		const VertexArray& get_VAO() const noexcept;
+		const IndexBuffer& get_EBO() const noexcept;
 	private:
 		std::string m_shaderName;
 		VertexBuffer m_VBO;

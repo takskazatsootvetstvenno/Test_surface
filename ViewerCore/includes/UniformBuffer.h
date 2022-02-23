@@ -19,9 +19,9 @@ namespace TestEngine {
 		UniformBuffer(UniformBuffer&& otherUniformBuffer) noexcept;
 		UniformBuffer& operator=(UniformBuffer&& otherUniformBuffer) noexcept;
 
-		void updateData(const void* data) const;
-		void updateSubData(const void* data, const unsigned int offset, const unsigned int size) const;
-		void updateElementData(const void* data, unsigned int elementID) const;
+		void updateData(const void* data) const noexcept;
+		void updateSubData(const void* data, const unsigned int offset, const unsigned int size) const noexcept;
+		void updateElementData(const void* data, unsigned int elementID) const noexcept;
 		void bind() const;
 		static void unBind();
 		unsigned int get_buffer() const { return m_id; }

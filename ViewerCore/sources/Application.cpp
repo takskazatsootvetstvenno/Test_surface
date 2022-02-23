@@ -21,14 +21,12 @@ int Application::start(const unsigned int width, const unsigned int height, std:
 	m_event_dispather.add_event_listener <EventMouseMoved>(
 		[](EventMouseMoved& event)
 		{
-		//	LogManager::Info() << "[MouseMoved] Mouse moved to " << event.x << " x " << event.y << LogManager::Show();
 		}
 	);
 
 	m_event_dispather.add_event_listener <EventScroll>(
 		[&](EventScroll& event)
 		{
-			//LogManager::Info() << "[Scroll] y = " << event.y << "\n"<< LogManager::Show();
 			m_pWindow->addCameraDistance(static_cast<float>(event.y));
 		}
 	);
@@ -60,7 +58,6 @@ int Application::start(const unsigned int width, const unsigned int height, std:
 	m_event_dispather.add_event_listener <EventWindowResize>(
 		[](EventWindowResize& event)
 		{
-			LogManager::Info() << "[Resized] Changing size to " << event.width << " x " << event.height << LogManager::Show();
 		}
 	);
 	m_event_dispather.add_event_listener <EventWindowClose>(

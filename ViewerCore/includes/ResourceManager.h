@@ -19,7 +19,8 @@ namespace TestEngine {
 		enum class GLOBAL_UBO
 		{
 			GENERAL_MATRICES = 0,
-			COMPUTE_INFO = 1
+			COMPUTE_INFO = 1,
+			LIGHT_INFO = 2
 		};
 		~ResourceManager() {};
 		ResourceManager(const ResourceManager&) = delete;
@@ -37,7 +38,7 @@ namespace TestEngine {
 
 		void addMesh(Mesh&&);
 		std::vector<Mesh>& getMeshes();
-		const ShaderProgram& getShaderProgram(const std::string& resourceName);
+		const ShaderProgram& getShaderProgram(const std::string& resourceName) const noexcept;
 		
 	private:
 		ResourceManager();

@@ -12,7 +12,6 @@ namespace TestEngine
 		MouseButtonPressed,
 		MouseButtonReleased,
 		MouseMoved,
-		CommandInput,
 		Scroll,
 
 		EventsCount
@@ -93,20 +92,7 @@ namespace TestEngine
 		}
 		static const EventType type = EventType::WindowClose;
 	};
-	class EventCommandInput : public BaseEvent
-	{
-	public:
-		EventCommandInput(std::string& input_command)
-			:command(std::move(input_command)) {}
-		EventCommandInput(std::string&& input_command)
-			:command(std::move(input_command)) {}
-		virtual EventType get_type() const override
-		{
-			return EventType::CommandInput;
-		}
-		static const EventType type = EventType::CommandInput;
-		std::string command;
-	};
+
 	class EventScroll : public BaseEvent
 	{
 	public:
