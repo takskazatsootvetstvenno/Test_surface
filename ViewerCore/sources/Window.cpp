@@ -109,6 +109,7 @@ namespace TestEngine
 		ImGui::CreateContext();
 		ImGui_ImplOpenGL3_Init("#version 460");
 		ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
+		glDisable(GL_CULL_FACE);
 	}
 
 	void Window::init()
@@ -204,6 +205,16 @@ namespace TestEngine
 	const char* items[] = { "X-Section", "Y-Section", "Z-Section", "Nothing" };
 	void Window::onUpdate() noexcept
 	{
+		glfwPollEvents();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		if (m_surfData.old_useWireFrames != m_surfData.new_useWireFrames)
+		{
+			if(m_surfData.new_useWireFrames)
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			else
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			m_surfData.old_useWireFrames = m_surfData.new_useWireFrames;
+		}
 		if (m_surfData.isChanged())
 		{
 			auto sectionType = Surface::Section::Nothing;
@@ -225,8 +236,6 @@ namespace TestEngine
 			m_pSurface->updateSurfaceVB(m_surfData.new_grid_size, m_surfData.new_epsilon, m_surfData.new_const);
 			m_surfData.update();
 		}
-		glfwPollEvents();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		ImGuiIO& io = ImGui::GetIO();
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -234,8 +243,9 @@ namespace TestEngine
 		ImGui::Begin("Surface options:");
 		ImGui::SliderFloat("displacement", &m_CameraData.displacement, -5.f, 5.f);
 		ImGui::SliderFloat("Const", &m_surfData.new_const, 0.4f, 1.9f, "%0.5f");
-		ImGui::SliderInt("Grid size", &m_surfData.new_grid_size, 5, 200, "%0.3d");
+		ImGui::SliderInt("Grid size", &m_surfData.new_grid_size, 5, 100, "%0.3d");
 		ImGui::SliderFloat("Epsilon", &m_surfData.new_epsilon, 0.0001f, 0.5f, "%0.5f", ImGuiSliderFlags_Logarithmic);
+		ImGui::Checkbox("Use wireframe", &m_surfData.new_useWireFrames);
 		//ImGui::ListBox("ListBox", &m_surfData.new_section, items, sizeof(items) / sizeof(items[0]), 2); //TO DO, make section on compute shader
 		auto& UBO = ResourceManager::Instance().getUBO(ResourceManager::GLOBAL_UBO::GENERAL_MATRICES);//proj
 		UBO.updateElementData([&]() {

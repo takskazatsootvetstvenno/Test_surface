@@ -17,14 +17,16 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 float func(const float x, const float y, const float z)
 {
 	return 1.f / (sin(x) * sin(x) + cos(y) * cos(x) + z * z);
+	//return 1.f/(x*x + y*y + z*z);
 }
 
 void main() {
+    
 	const uvec3 coords = gl_GlobalInvocationID.xyz;
 	const uint ident = N * N * coords.z + N * coords.y + coords.x;
-
 	const float x = (float(coords.x) / (N-1)) * 2.f - 1.f;
 	const float y = (float(coords.y) / (N-1)) * 2.f - 1.f;
 	const float z = (float(coords.z) / (N-1)) * 2.f - 1.f;
 	data[ident] = func(x, y, z);
+
 }

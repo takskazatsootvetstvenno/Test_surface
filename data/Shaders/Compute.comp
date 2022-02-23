@@ -13,20 +13,267 @@ layout(std430, binding = 0) readonly buffer Init_SSBO {
 };
 
 layout(std430, binding = 1) writeonly buffer SSBO {
-    writeonly vec4 out_data[];
+	writeonly vec4 out_point[][3];
+};
+
+layout(std430, binding = 2) writeonly buffer Norm_SSBO {
+	writeonly vec4 out_norm[][3];
 };
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
+void clear(const uint ident)
+{
+    out_point[ident + 0][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 0][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 0][2] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 1][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 1][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 1][2] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 2][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 2][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 2][2] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 3][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 3][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 3][2] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 4][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 4][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 4][2] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 5][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 5][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 5][2] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 6][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 6][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 6][2] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 7][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 7][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 7][2] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 8][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 8][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 8][2] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 9][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 9][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 9][2] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 10][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 10][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 10][2] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 11][0] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 11][1] = vec4(0.f, 0.f, 0.f, 0.f);
+    out_point[ident + 11][2] = vec4(0.f, 0.f, 0.f, 0.f);
+}
+vec3 vertexInterp(const float isolevel, const vec3 p1, const vec3 p2, const float p1_val, const float p2_val)
+{
+   const float t = (isolevel - p1_val) / (p2_val - p1_val);
+   const vec3 p = p1 + t * (p2 - p1);
+   return p;
+}
+
+const uvec3 vert_table[8] = {
+   {0, 1, 0},
+   {1, 1, 0},
+   {1, 0, 0},
+   {0, 0, 0},
+   {0, 1, 1},
+   {1, 1, 1},
+   {1, 0, 1},
+   {0, 0, 1}
+};
+
+uvec3 get_pos(const int v) //return pos
+{
+    return gl_GlobalInvocationID.xyz + vert_table[v];
+}
+
+float get_value(const uvec3 pos){
+    const uint ident = N * N * pos.z + N * pos.y + pos.x;
+    return in_data[ident];
+}
+
+vec3 get_normal(const vec3 M)
+{
+    const float x = -1.f * (2.f*sin(M.x)*cos(M.x) - cos(M.y)*sin(M.x))/((sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z)*(sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z));
+    const float y =  1.f * (sin(M.y)*cos(M.x)) / ((sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z)*(sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z));
+    const float z =  -1.f * (2.f*M.z) / ((sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z)*(sin(M.x)*sin(M.x) + cos(M.y)*cos(M.x) + M.z*M.z));
+    //const float x = 2*M.x;
+    //const float y = 2*M.y;
+    //const float z = 2*M.z;
+
+    return normalize(vec3(x,y,z));
+}
+void processTriangle(const float iso, const uint ident, const int v0, const int v1, const int v2, const int v3)
+{
+   int triindex = 0;
+
+   const uvec3 v0_pos = get_pos(v0);
+   const float v0_val = get_value(v0_pos);
+   const uvec3 v1_pos = get_pos(v1);
+   const float v1_val = get_value(v1_pos);
+   const uvec3 v2_pos = get_pos(v2);
+   const float v2_val = get_value(v2_pos);
+   const uvec3 v3_pos = get_pos(v3);
+   const float v3_val = get_value(v3_pos);
+
+   vec3 tri_pos0,
+        tri_pos1,
+        tri_pos2;
+
+   if (get_value(get_pos(v0)) < iso) triindex |= 1;
+   if (get_value(get_pos(v1)) < iso) triindex |= 2;
+   if (get_value(get_pos(v2)) < iso) triindex |= 4;
+   if (get_value(get_pos(v3)) < iso) triindex |= 8;
+
+   switch (triindex) {
+   case 0x00:
+   case 0x0F:
+      break;
+   case 0x0E:
+   case 0x01:
+      tri_pos0 = vec3(vertexInterp(iso, v0_pos, v1_pos, v0_val, v1_val)) / (N-1) * 2.f - 1.f;
+      tri_pos1 = vec3(vertexInterp(iso, v0_pos, v2_pos, v0_val, v2_val)) / (N-1) * 2.f - 1.f;
+      tri_pos2 = vec3(vertexInterp(iso, v0_pos, v3_pos, v0_val, v3_val)) / (N-1) * 2.f - 1.f;
+
+      out_norm[ident][0] = vec4(get_normal(tri_pos0), 1.f);
+      out_norm[ident][1] = vec4(get_normal(tri_pos1), 1.f);
+      out_norm[ident][2] = vec4(get_normal(tri_pos2), 1.f);
+
+      out_point[ident][0] = vec4(tri_pos0, 1.f);
+      out_point[ident][1] = vec4(tri_pos1, 1.f);
+      out_point[ident][2] = vec4(tri_pos2, 1.f);
+      break;
+   case 0x0D:
+   case 0x02:
+      tri_pos0 = vec3(vertexInterp(iso, v1_pos, v0_pos, v1_val, v0_val)) / (N-1) * 2.f - 1.f;
+      tri_pos1 = vec3(vertexInterp(iso, v1_pos, v3_pos, v1_val, v3_val)) / (N-1) * 2.f - 1.f;
+      tri_pos2 = vec3(vertexInterp(iso, v1_pos, v2_pos, v1_val, v2_val)) / (N-1) * 2.f - 1.f;
+
+      out_norm[ident][0] = vec4(get_normal(tri_pos0), 1.f);
+      out_norm[ident][1] = vec4(get_normal(tri_pos1), 1.f);
+      out_norm[ident][2] = vec4(get_normal(tri_pos2), 1.f);
+
+      out_point[ident][0] = vec4(tri_pos0, 1.f);
+      out_point[ident][1] = vec4(tri_pos1, 1.f);
+      out_point[ident][2] = vec4(tri_pos2, 1.f);
+      break;
+   case 0x0C:
+   case 0x03:
+      tri_pos0 = vec3(vertexInterp(iso, v0_pos, v3_pos, v0_val, v3_val)) / (N-1) * 2.f - 1.f;
+      tri_pos1 = vec3(vertexInterp(iso, v0_pos, v2_pos, v0_val, v2_val)) / (N-1) * 2.f - 1.f;
+      tri_pos2 = vec3(vertexInterp(iso, v1_pos, v3_pos, v1_val, v3_val)) / (N-1) * 2.f - 1.f;
+
+      out_norm[ident][0] = vec4(get_normal(tri_pos0), 1.f);
+      out_norm[ident][1] = vec4(get_normal(tri_pos1), 1.f);
+      out_norm[ident][2] = vec4(get_normal(tri_pos2), 1.f);
+
+      out_point[ident][0] = vec4(tri_pos0, 1.f);
+      out_point[ident][1] = vec4(tri_pos1, 1.f);
+      out_point[ident][2] = vec4(tri_pos2, 1.f);
+
+      tri_pos0 = vec3(vertexInterp(iso, v1_pos, v3_pos, v1_val, v3_val)) / (N-1) * 2.f - 1.f;
+      tri_pos1 = vec3(vertexInterp(iso, v1_pos, v2_pos, v1_val, v2_val)) / (N-1) * 2.f - 1.f;
+      tri_pos2 = vec3(vertexInterp(iso, v0_pos, v2_pos, v0_val, v2_val)) / (N-1) * 2.f - 1.f;
+
+      out_norm[ident + 1][0] = vec4(get_normal(tri_pos0), 1.f);
+      out_norm[ident + 1][1] = vec4(get_normal(tri_pos1), 1.f);
+      out_norm[ident + 1][2] = vec4(get_normal(tri_pos2), 1.f);
+
+      out_point[ident + 1][0] = vec4(tri_pos0, 1.f);
+      out_point[ident + 1][1] = vec4(tri_pos1, 1.f);
+      out_point[ident + 1][2] = vec4(tri_pos2, 1.f);
+      break;
+   case 0x0B:
+   case 0x04:
+      tri_pos0 = vec3(vertexInterp(iso, v2_pos, v0_pos, v2_val, v0_val)) / (N-1) * 2.f - 1.f;
+      tri_pos1 = vec3(vertexInterp(iso, v2_pos, v1_pos, v2_val, v1_val)) / (N-1) * 2.f - 1.f;
+      tri_pos2 = vec3(vertexInterp(iso, v2_pos, v3_pos, v2_val, v3_val)) / (N-1) * 2.f - 1.f;
+
+      out_norm[ident][0] = vec4(get_normal(tri_pos0), 1.f);
+      out_norm[ident][1] = vec4(get_normal(tri_pos1), 1.f);
+      out_norm[ident][2] = vec4(get_normal(tri_pos2), 1.f);
+
+      out_point[ident][0] = vec4(tri_pos0, 1.f);
+      out_point[ident][1] = vec4(tri_pos1, 1.f);
+      out_point[ident][2] = vec4(tri_pos2, 1.f);
+      break;
+   case 0x0A:
+   case 0x05:
+      tri_pos0 = vec3(vertexInterp(iso, v0_pos, v1_pos, v0_val, v1_val)) / (N-1) * 2.f - 1.f;
+      tri_pos1 = vec3(vertexInterp(iso, v2_pos, v3_pos, v2_val, v3_val)) / (N-1) * 2.f - 1.f;
+      tri_pos2 = vec3(vertexInterp(iso, v0_pos, v3_pos, v0_val, v3_val)) / (N-1) * 2.f - 1.f;
+
+      out_norm[ident][0] = vec4(get_normal(tri_pos0), 1.f);
+      out_norm[ident][1] = vec4(get_normal(tri_pos1), 1.f);
+      out_norm[ident][2] = vec4(get_normal(tri_pos2), 1.f);
+
+      out_point[ident][0] = vec4(tri_pos0, 1.f);
+      out_point[ident][1] = vec4(tri_pos1, 1.f);
+      out_point[ident][2] = vec4(tri_pos2, 1.f);
+
+      tri_pos0 = vec3(vertexInterp(iso, v0_pos, v1_pos, v0_val, v1_val)) / (N-1) * 2.f - 1.f;
+      tri_pos1 = vec3(vertexInterp(iso, v1_pos, v2_pos, v1_val, v2_val)) / (N-1) * 2.f - 1.f;
+      tri_pos2 = vec3(vertexInterp(iso, v2_pos, v3_pos, v2_val, v3_val)) / (N-1) * 2.f - 1.f;
+
+      out_norm[ident + 1][0] = vec4(get_normal(tri_pos0), 1.f);
+      out_norm[ident + 1][1] = vec4(get_normal(tri_pos1), 1.f);
+      out_norm[ident + 1][2] = vec4(get_normal(tri_pos2), 1.f);
+
+      out_point[ident + 1][0] = vec4(tri_pos0, 1.f);
+      out_point[ident + 1][1] = vec4(tri_pos1, 1.f);
+      out_point[ident + 1][2] = vec4(tri_pos2, 1.f);
+      break;
+   case 0x09:
+   case 0x06:
+      tri_pos0 = vec3(vertexInterp(iso, v0_pos, v1_pos, v0_val, v1_val)) / (N-1) * 2.f - 1.f;
+      tri_pos1 = vec3(vertexInterp(iso, v1_pos, v3_pos, v1_val, v3_val)) / (N-1) * 2.f - 1.f;
+      tri_pos2 = vec3(vertexInterp(iso, v2_pos, v3_pos, v2_val, v3_val)) / (N-1) * 2.f - 1.f;
+
+      out_norm[ident][0] = vec4(get_normal(tri_pos0), 1.f);
+      out_norm[ident][1] = vec4(get_normal(tri_pos1), 1.f);
+      out_norm[ident][2] = vec4(get_normal(tri_pos2), 1.f);
+
+      out_point[ident][0] = vec4(tri_pos0, 1.f);
+      out_point[ident][1] = vec4(tri_pos1, 1.f);
+      out_point[ident][2] = vec4(tri_pos2, 1.f);
+
+      tri_pos0 = vec3(vertexInterp(iso, v0_pos, v1_pos, v0_val, v1_val)) / (N-1) * 2.f - 1.f;
+      tri_pos1 = vec3(vertexInterp(iso, v0_pos, v2_pos, v0_val, v2_val)) / (N-1) * 2.f - 1.f;
+      tri_pos2 = vec3(vertexInterp(iso, v2_pos, v3_pos, v2_val, v3_val)) / (N-1) * 2.f - 1.f;
+
+      out_norm[ident + 1][0] = vec4(get_normal(tri_pos0), 1.f);
+      out_norm[ident + 1][1] = vec4(get_normal(tri_pos1), 1.f);
+      out_norm[ident + 1][2] = vec4(get_normal(tri_pos2), 1.f);
+
+      out_point[ident + 1][0] = vec4(tri_pos0, 1.f);
+      out_point[ident + 1][1] = vec4(tri_pos1, 1.f);
+      out_point[ident + 1][2] = vec4(tri_pos2, 1.f);
+      break;
+   case 0x07:
+   case 0x08:
+      tri_pos0 = vec3(vertexInterp(iso, v3_pos, v0_pos, v3_val, v0_val)) / (N-1) * 2.f - 1.f;
+      tri_pos1 = vec3(vertexInterp(iso, v3_pos, v2_pos, v3_val, v2_val)) / (N-1) * 2.f - 1.f;
+      tri_pos2 = vec3(vertexInterp(iso, v3_pos, v1_pos, v3_val, v1_val)) / (N-1) * 2.f - 1.f;
+
+      out_norm[ident][0] = vec4(get_normal(tri_pos0), 1.f);
+      out_norm[ident][1] = vec4(get_normal(tri_pos1), 1.f);
+      out_norm[ident][2] = vec4(get_normal(tri_pos2), 1.f);
+
+      out_point[ident][0] = vec4(tri_pos0, 1.f);
+      out_point[ident][1] = vec4(tri_pos1, 1.f);
+      out_point[ident][2] = vec4(tri_pos2, 1.f);
+      break;
+   }
+}
+
 void main() {
 	const uvec3 coords = gl_GlobalInvocationID.xyz;
-	const uint ident = N * N * coords.z + N * coords.y + coords.x;
-	const float x = (float(coords.x) / (N-1)) * 2.f - 1.f;
-	const float y = (float(coords.y) / (N-1)) * 2.f - 1.f;
-	const float z = (float(coords.z) / (N-1)) * 2.f - 1.f;
-	const float result = in_data[ident];
-	if (abs(result) < constanta + Eps && abs(result) > constanta - Eps)
-		out_data[ident] = vec4(x, y, z, 1.f);
-	else
-		out_data[ident] = vec4(0.f, 0.f, 0.f, 1.f);	
+	const uint ident = N * N * (coords.z*12) + N * (coords.y*12) + (coords.x*12);
+
+    clear(ident);
+    if(coords.x >= N-1 || coords.y >= N-1 || coords.z >= N-1) return;
+
+    processTriangle(constanta, ident + 0, 0, 2, 3, 7);
+    processTriangle(constanta, ident + 2, 0, 2, 6, 7);
+    processTriangle(constanta, ident + 4, 0, 4, 6, 7);
+    processTriangle(constanta, ident + 6, 0, 6, 1, 2);
+    processTriangle(constanta, ident + 8, 0, 6, 1, 4);
+    processTriangle(constanta, ident + 10, 5, 6, 1, 4);
 }

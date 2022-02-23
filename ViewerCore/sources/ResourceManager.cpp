@@ -103,7 +103,7 @@ namespace TestEngine {
 			std::move(m_VBO),
 			std::move(m_EBO),
 			std::move(m_VAO),
-			Mesh::POINTS
+			Mesh::TRIANGLE
 			);
 
 		BindingUBO uboBinding;
